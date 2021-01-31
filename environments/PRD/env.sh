@@ -1,0 +1,5 @@
+export ENV="prd"
+export DNS_ZONE="p.freundcloud.org.uk"
+export CONTACT="olaf.freund@outlook.com"
+export AKSNAME="aks-demo-$ENV"
+export KEYVAULT="aks-demo-$ENV-lz-kv"

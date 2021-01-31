@@ -1,0 +1,38 @@
+parameters:
+  - name: Environment
+    default: ''
+  - name: vmImage
+    default: ''
+
+
+stages:
+- stage: Plan
+  variables:
+    - template: ./config/${{ parameters.Environment }}.config.yml
+  jobs:
+  - template: tf_plan.yml
+    parameters:
+     Environment: ${{ parameters.Environment }}
+     vmImage: 'ubuntu-latest'
+    
+- stage: Apply
+  variables:
+    - template: ./config/${{ parameters.Environment }}.config.yml
+  dependsOn: Plan
+  condition: and(succeeded())
+  jobs:
+  - template: tf_apply.yml
+    parameters: 
+      Environment: ${{ parameters.Environment }}
+      vmImage: 'ubuntu-latest'
+
+- stage: Destroy
+  variables:
+    - template: ./config/${{ parameters.Environment }}.config.yml
+  dependsOn: Plan
+  condition: and(succeeded())
+  jobs:
+  - template: tf_destroy.yml
+    parameters: 
+      Environment: ${{ parameters.Environment }}
+      vmImage: 'ubuntu-latest'

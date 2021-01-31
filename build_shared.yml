@@ -1,0 +1,51 @@
+parameters:
+  - name: 'Environment'
+    default: 'SBX'
+    type: string
+    values:
+      - SBX
+      - PRD
+      - DEV
+  - name: vmImage
+    default: 'ubuntu-latest'
+    type: string
+  - name: PlanOnly
+    default: true
+    type: boolean
+  - name: DestroyOnly
+    default: false
+    type: boolean
+  - name: Apply
+    default: false
+    type: boolean
+
+stages:
+  - stage: PlanOnly
+    condition: eq('${{ parameters.PlanOnly }}', true)
+    variables:
+      - template: ./pipeline/config/${{ parameters.Environment }}.config.yml
+    jobs:    
+    - template: ./pipeline/tf_plan.yml
+      parameters:
+       Environment: ${{ parameters.Environment }}
+       vmImage: ${{ parameters.vmImage }}
+      
+  - stage: Apply
+    condition: and(always(), ne('${{ parameters.PlanOnly }}', true), ne('${{ parameters.DestroyOnly }}', true))
+    variables:
+      - template: ./pipeline/config/${{ parameters.Environment }}.config.yml
+    jobs:
+    - template: ./pipeline/tf_apply.yml
+      parameters: 
+        Environment: ${{ parameters.Environment }}
+        vmImage: ${{ parameters.vmImage }}
+  
+  - stage: Destroy
+    condition: and(always(), eq('${{ parameters.DestroyOnly }}', true), ne('${{ parameters.PlanOnly }}', true))
+    variables:
+      - template: ./pipeline/config/${{ parameters.Environment }}.config.yml
+    jobs:
+    - template: ./pipeline/tf_destroy.yml
+      parameters: 
+        Environment: ${{ parameters.Environment }}
+        vmImage: ${{ parameters.vmImage }}

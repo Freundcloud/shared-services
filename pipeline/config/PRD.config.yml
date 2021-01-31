@@ -1,0 +1,5 @@
+variables:
+  TERRAFORM_VERSION: "0.14.5"
+  SVC_CONNECTION: "PRD"
+  ENVIRONMENT: "PRD"
+
